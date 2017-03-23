@@ -30,17 +30,25 @@ class Form(Controller):
     @add_authorizations(auth.check_user)
     @route_with(name='form:user:use_shop_point')
     def use_shop_point(self):
-        u = self.params.get_integer('use')
+        u = self.params.get_float('use')
+        u2 = 0.0
+        try:
+            from plugins.currency.models.currency_model import CurrencyModel
+            cu = CurrencyModel.get_current_or_main_currency_with_controller(self)
+            u2 = cu.calc(u)
+        except:
+            pass
         m = self.meta.Model.get_or_create(self.application_user)
         if 0 <= u <= m.point:
             self.session['shop_point_use'] = u
-            self.context['data'] = {'result': 'success', 'point': u, 'point_max': m.point}
+            self.session['shop_point_use_in_currency'] = u2
+            self.context['data'] = {'result': 'success', 'shop_point_use': u, 'shop_point_use_in_currency': u2}
             self.context['message'] = u'將使用購物金 %s 元' % u
+            return
         if u > m.point:
-            self.session['shop_point_use'] = m.point
             self.context['message'] = u'購物金不足'
-            self.context['data'] = {'result': 'failure', 'point': m.point, 'point_max': m.point}
         if u < 0:
-            self.session['shop_point_use'] = 0
             self.context['message'] = u'購物金金額有誤'
-            self.context['data'] = {'result': 'failure', 'point': 0, 'point_max': m.point}
+        self.session['shop_point_use'] = 0.0
+        self.session['shop_point_use_in_currency'] = 0.0
+        self.context['data'] = {'result': 'failure', 'shop_point_use': 0.0, 'shop_point_use_in_currency': 0.0}

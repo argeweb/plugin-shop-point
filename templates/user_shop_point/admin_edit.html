@@ -93,7 +93,7 @@
     (function(page){
         $("#btn-send-shop-point").click(function(){
             saveForm("#send-shop-point", function(data, message){
-                backend.content_iframe.reload();
+                backend.content_area.reload();
             });
         });
     })(page);

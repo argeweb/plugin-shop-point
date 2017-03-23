@@ -16,9 +16,9 @@ class UserShopPointHistoryModel(BasicModel):
     shop_point_target = Fields.KeyProperty(verbose_name=u'所屬單位', kind=UserShopPointModel)
     order_no = Fields.StringProperty(verbose_name=u'訂單編號', default=u'')
     order_amount = Fields.StringProperty(verbose_name=u'訂單金額', default=u'')
-    decrease_point = Fields.IntegerProperty(verbose_name=u'點數减少', default=0)
-    increase_point = Fields.IntegerProperty(verbose_name=u'點數增加', default=0)
-    point = Fields.IntegerProperty(verbose_name=u'剩餘點數', default=0)
+    decrease_point = Fields.FloatProperty(verbose_name=u'點數减少', default=0)
+    increase_point = Fields.FloatProperty(verbose_name=u'點數增加', default=0)
+    point = Fields.FloatProperty(verbose_name=u'剩餘點數', default=0)
     remark = Fields.TextProperty(verbose_name=u'說明', default=u'')
 
     @classmethod
