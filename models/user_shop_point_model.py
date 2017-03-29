@@ -18,7 +18,7 @@ class UserShopPointModel(BasicModel):
         label_name = {
             'modified': u'最後變動時間',
         }
-    name = Fields.StringProperty(verbose_name=u'系統編號')
+    name = Fields.StringProperty(verbose_name=u'識別名稱')
     user = Fields.KeyProperty(verbose_name=u'使用者', kind=ApplicationUserModel)
     user_name_proxy = Fields.StringProperty(verbose_name=u'使用者名稱')
     user_email_proxy = Fields.StringProperty(verbose_name=u'E-Mail')

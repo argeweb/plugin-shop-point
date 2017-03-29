@@ -16,8 +16,6 @@ from ..models.user_shop_point_history_model import UserShopPointHistoryModel as 
 class UserShopPoint(Controller):
     class Meta:
         components = (scaffold.Scaffolding, Pagination, Search, CSRF)
-        pagination_actions = ('list',)
-        pagination_limit = 50
 
     class Scaffold:
         display_in_form = ('account', 'created', 'modified')

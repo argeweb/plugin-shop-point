@@ -12,7 +12,7 @@ from user_shop_point_model import UserShopPointModel
 
 
 class UserShopPointHistoryModel(BasicModel):
-    name = Fields.StringProperty(verbose_name=u'系統編號')
+    name = Fields.StringProperty(verbose_name=u'識別名稱')
     shop_point_target = Fields.KeyProperty(verbose_name=u'所屬單位', kind=UserShopPointModel)
     order_no = Fields.StringProperty(verbose_name=u'訂單編號', default=u'')
     order_amount = Fields.StringProperty(verbose_name=u'訂單金額', default=u'')

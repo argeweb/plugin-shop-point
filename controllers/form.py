@@ -17,8 +17,6 @@ from ..models.user_shop_point_model import UserShopPointModel
 class Form(Controller):
     class Meta:
         components = (scaffold.Scaffolding, Pagination, Search, CSRF)
-        pagination_actions = ('list',)
-        pagination_limit = 50
         default_view = 'json'
         Model = UserShopPointModel
 
