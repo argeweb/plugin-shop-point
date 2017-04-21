@@ -1,8 +1,6 @@
 {% extends "backend/form.html" %}
 {%- set item = context[scaffolding.singular] -%}
-{% block layout_header %}
-    <a href="javascript: history.go(-1);" class="btn btn-white btn-display-in-iframe"><i class="icon">keyboard_backspace</i> 回上一頁</a>
-{% endblock %}
+{% block layout_header %}{% endblock %}
 {% block layout_before_content %}
 <div class="ibox-content m-b-sm border-bottom">
     <div class="p-xs">
@@ -14,6 +12,8 @@
         {% if last_record_date %}<span class="text-muted small pull-right visible-sm visible-md visible-lg">最後更新：<i class="icon">access_time</i> {{ print_value(last_record_date) }}</span>{% endif %}
     </div>
 </div>
+
+<div style="padding: 0 15px;"><a href="javascript: history.go(-1);" class="btn btn-white btn-display-in-iframe"><i class="icon">keyboard_backspace</i><span class="hidden-xs"> 回上一頁</span></a></div>
 {% endblock %}
 
 {% block layout_content %}
@@ -64,7 +64,7 @@
                         <form method="POST" action="{{ uri_action_link('send_point') }}"
                               data-return-encoding="{{ scaffolding.form_return_encoding }}"
                               enctype="{{ scaffolding.form_encoding }}" accept-charset="UTF-8"
-                              target="iframeForm" role="form" id="send-shop-point">
+                              role="form" id="send-shop-point">
                             <input type="hidden" name="key" value="{{ print_key(item) }}" />
                             <select name="action" class="form-control">
                                 <option value="increase_point">儲值</option>
@@ -85,15 +85,12 @@
 
 {% endblock %}
 
-{% block form_actions %}{% endblock %}
-{% block layout_buttons %}{% endblock %}
-
 {% block layout_scripts %}
 <script type="text/javascript">
     (function(page){
         $("#btn-send-shop-point").click(function(){
             saveForm("#send-shop-point", function(data, message){
-                backend.content_area.reload();
+                content_area.reload();
             });
         });
     })(page);

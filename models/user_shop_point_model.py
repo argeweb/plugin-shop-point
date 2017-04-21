@@ -8,8 +8,6 @@
 
 from argeweb import BasicModel
 from argeweb import Fields
-from argeweb.libs.bcrypt import bcrypt
-from argeweb.libs.wtforms.validators import InputRequired
 from plugins.application_user.models.application_user_model import ApplicationUserModel
 
 
