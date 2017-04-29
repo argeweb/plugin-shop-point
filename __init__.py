@@ -20,16 +20,17 @@ plugins_helper = {
         'user_shop_point': {
             'group': u'購物金',
             'actions': [
-                {'action': 'list', 'name': u'資料管理'},
-                {'action': 'edit', 'name': u'編輯資料'},
-                {'action': 'view', 'name': u'檢視資料'},
-                {'action': 'delete', 'name': u'刪除資料'},
+                {'action': 'list', 'name': u'購物金管理'},
+                {'action': 'edit', 'name': u'編輯購物金'},
+                {'action': 'view', 'name': u'檢視購物金'},
+                {'action': 'delete', 'name': u'刪除購物金'},
+                {'action': 'plugins_check', 'name': u'啟用停用模組'},
             ]
         },
         'user_shop_point_config': {
             'group': u'購物金設定',
             'actions': [
-                {'action': 'config', 'name': u'編輯資料'},
+                {'action': 'config', 'name': u'購物金設定'},
             ]
         }
     }
