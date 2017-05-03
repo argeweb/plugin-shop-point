@@ -42,4 +42,7 @@ class UserShopPoint(Controller):
         if action == 'decrease_point':
             user_point_item.decrease_point(point, remark)
         user_point_item.put()
-        return self.json({'result': 'success'})
+        return self.json({
+            'message': u'完成',
+            'data': {'result': 'success'}
+        })
