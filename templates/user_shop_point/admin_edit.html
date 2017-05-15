@@ -90,6 +90,7 @@
     (function(page){
         $("#btn-send-shop-point").click(function(){
             saveForm("#send-shop-point", function(data){
+                message.hideAll();
                 content_area.reload();
             });
         });
