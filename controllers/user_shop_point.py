@@ -22,7 +22,7 @@ class UserShopPoint(Controller):
         hidden_in_form = ('name', 'is_enable')
         display_in_list = ('user_name_proxy', 'user_email_proxy', 'point', 'used_point', 'modified')
 
-    @route_menu(list_name=u'backend', text=u'購物金', sort=9803, icon='users', group=u'帳號管理')
+    @route_menu(list_name=u'backend', text=u'會員點數', sort=9803, icon='users', group=u'帳號管理')
     def admin_list(self):
         scaffold.list(self)
 
@@ -46,3 +46,35 @@ class UserShopPoint(Controller):
             'message': u'完成',
             'data': {'result': 'success'}
         })
+
+    @route
+    def pay_with_point(self):
+        payment_record = self.params.get_ndb_record('payment_record')
+        self.context['data'] = {'result': 'failure'}
+        if payment_record is None:
+            self.context['message'] = u'付款資訊不存在'
+            return
+        if self.application_user is None:
+            self.context['message'] = u'使用者不存在，或尚未登入'
+            return
+        point_record = self.meta.Model.get_or_create(self.application_user)
+        if point_record.point < payment_record.amount:
+            self.context['message'] = u'點數餘額不足，請先儲值'
+            return
+        point_record.decrease_point(payment_record.amount, payment_record.title, payment_record.order_no, payment_record.amount)
+        self.context['data'] = {'result': 'success', 'point_record': point_record}
+        self.context['message'] = u'成功使用點數進行支付'
+
+    @route
+    def taskqueue_after_install(self):
+        try:
+            from plugins.payment_middle_layer.models.payment_type_model import PaymentTypeModel
+            PaymentTypeModel.get_or_create(
+                name='user_shop_point',
+                title=u'點數支付',
+                pay_uri='user_shop_point:user_shop_point:pay_with_point'
+            )
+            return 'done'
+        except ImportError:
+            self.logging.error(u'需要 "付款中間層"')
+            return 'ImportError'

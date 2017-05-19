@@ -33,5 +33,6 @@ plugins_helper = {
                 {'action': 'config', 'name': u'購物金設定'},
             ]
         }
-    }
+    },
+    'install_uri': 'user_shop_point:user_shop_point:after_install'
 }
