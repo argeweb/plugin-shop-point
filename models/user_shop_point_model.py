@@ -43,9 +43,9 @@ class UserShopPointModel(BasicModel):
         item.user_email_proxy = item._user.email
 
     def increase_point(self, point, remark=u'', order_no=u'', order_amount=None):
-        from user_shop_point_history_model import UserShopPointHistoryModel as History
+        from user_shop_point_history_model import UserShopPointHistoryModel
         point = int(point)
-        history = History()
+        history = UserShopPointHistoryModel()
         history.shop_point_target = self.key
         history.remark = remark
         history.increase_point = point
@@ -59,9 +59,9 @@ class UserShopPointModel(BasicModel):
         self.point += point
 
     def decrease_point(self, point, remark, order_no=u'', order_amount=None):
-        from user_shop_point_history_model import UserShopPointHistoryModel as History
+        from user_shop_point_history_model import UserShopPointHistoryModel
         point = point
-        history = History()
+        history = UserShopPointHistoryModel()
         history.shop_point_target = self.key
         history.remark = remark
         history.decrease_point = point

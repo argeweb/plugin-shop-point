@@ -7,6 +7,7 @@
 # Date: 2017/2/24.
 
 from argeweb import Controller, scaffold, route_menu, route_with, route, settings
+from argeweb import auth, add_authorizations
 from argeweb.components.pagination import Pagination
 from argeweb.components.csrf import CSRF, csrf_protect
 from argeweb.components.search import Search
@@ -48,6 +49,7 @@ class UserShopPoint(Controller):
         })
 
     @route
+    @add_authorizations(auth.check_user)
     def pay_with_point(self):
         payment_record = self.params.get_ndb_record('payment_record')
         self.context['data'] = {'result': 'failure'}
@@ -62,8 +64,12 @@ class UserShopPoint(Controller):
             self.context['message'] = u'點數餘額不足，請先儲值'
             return
         point_record.decrease_point(payment_record.amount, payment_record.title, payment_record.order_no, payment_record.amount)
+        point_record.put()
+        payment_record.set_state('full_payment_with_point')
+        payment_record.put()
         self.context['data'] = {'result': 'success', 'point_record': point_record}
         self.context['message'] = u'成功使用點數進行支付'
+        return self.redirect(payment_record.gen_result_url(self))
 
     @route
     def taskqueue_after_install(self):
