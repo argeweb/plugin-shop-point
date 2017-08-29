@@ -5,13 +5,11 @@
 # Author: Qi-Liang Wen (温啓良）
 # Web: http://www.yooliang.com/
 # Date: 2015/7/12.
-from datetime import datetime
-from argeweb import Controller, scaffold, route_menu, route_with, route, settings
+from argeweb import Controller, scaffold, route_with, route
 from argeweb import auth, add_authorizations
 from argeweb.components.pagination import Pagination
 from argeweb.components.csrf import CSRF, csrf_protect
 from argeweb.components.search import Search
-from plugins.mail import Mail
 from ..models.user_shop_point_model import UserShopPointModel
 
 
@@ -25,6 +23,8 @@ class Data(Controller):
     @add_authorizations(auth.check_user)
     @route_with('/data/user/shop_point', name='data:user:shop_point')
     def shop_point(self):
+        from ..models.config_model import ConfigModel
+        config = ConfigModel.get_or_create_by_name('user_shop_point_config')
         use = 0.0
         use_2 = 0.0
         max = 0.0
@@ -46,8 +46,6 @@ class Data(Controller):
             pass
         if max is None:
             max = 0.0
-        from ..models.user_shop_point_config_model import UserShopPointConfigModel
-        config = UserShopPointConfigModel.find_or_create_by_name(self.namespace)
         self.context['data'] = {
             'result': 'success',
             'point': use,

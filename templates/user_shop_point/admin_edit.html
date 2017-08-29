@@ -1,8 +1,7 @@
 {% extends "backend/form.html" %}
 {%- set item = context[scaffolding.singular] -%}
-{% block layout_header %}{% endblock %}
-{% block layout_before_header %}
-<div class="ibox-content m-b-sm border-bottom page-header-big">
+{% block page_big_header %}
+<div class="ibox-content m-b-sm border-bottom page-big-header">
     <div class="p-xs">
         <div class="pull-left m-r-md">
             <i class="material-icons mid-icon brand-text-color">monetization_on</i>
@@ -12,80 +11,82 @@
         {% if last_record_date %}<span class="text-muted small pull-right visible-sm visible-md visible-lg">最後更新：<i class="icon">access_time</i> {{ print_value(last_record_date) }}</span>{% endif %}
     </div>
 </div>
-
-<div style="padding: 0 15px;"><a href="javascript: history.go(-1);" class="btn btn-white btn-display-in-iframe"><i class="icon">keyboard_backspace</i><span class="hidden-xs"> 回上一頁</span></a></div>
 {% endblock %}
 
-{% block layout_content %}
-<div class="wrapper wrapper-content">
-        <div class="row animated fadeInRight">
-            <div class="col-sm-8">
-                <div class="ibox float-e-margins">
-                    <div class="ibox-title">
-                        <h5>使用記錄 </h5>
-                    </div>
-                    <div class="ibox-content">
-                        <div class="timeline">
-                            {% for history_item in history %}
-                            <div class="timeline-item">
-                                <div class="row">
-                                    <div class="col-xs-3 date">
-                                        <i class="material-icons">access_time</i>
-                                        <small class="text-navy moment-from-now" data-from-now="{{ print_value(history_item.created) }}"></small>
-                                    </div>
-                                    <div class="col-xs-9 content" style="padding: 0 15px 7px 15px">
-                                        <div class="row" style="border-bottom: 1px solid #e7eaec;background: #f8f8f8;line-height: 27px;">
-                                            <div class="col-xs-4">餘額: <span class="text-info">{{ history_item.point }}</span></div>
-                                            <div class="col-xs-4">儲值: <span class="text-success">{{ history_item.increase_point }}</span></div>
-                                            <div class="col-xs-4">使用: <span class="text-danger">{{ history_item.decrease_point }}</span></div>
-                                        </div>
+{%- block page_header -%}
+    {% if s %}
+        <h1>{{ s.scaffold_title(route.action) }}</h1>
+        {{ s.scaffold_buttons(False) }}
+    {% endif %}
+{% endblock %}
 
-                                        <p class="m-b-xs"><br><strong>{{ history_item.remark }}</strong></p>
-                                        {% if history_item.order_no and history_item.order_amount %}
-                                        <p>
-                                            訂單編號: {{ history_item.order_no }}<br>
-                                            訂單金額: {{ history_item.order_amount }}<br>
-                                        </p>
-                                        {% endif %}
+{% block page_content %}
+    <div class="row">
+        <div class="col-sm-8">
+            <div class="ibox float-e-margins">
+                <div class="ibox-title">
+                    <h5>使用記錄 </h5>
+                </div>
+                <div class="ibox-content">
+                    <div class="timeline">
+                        {% for history_item in history %}
+                        <div class="timeline-item">
+                            <div class="row">
+                                <div class="col-xs-3 date">
+                                    <i class="material-icons">access_time</i>
+                                    <small class="text-navy moment-from-now" data-from-now="{{ print_value(history_item.created) }}"></small>
+                                </div>
+                                <div class="col-xs-9 content" style="padding: 0 15px 7px 15px">
+                                    <div class="row" style="border-bottom: 1px solid #e7eaec;background: #f8f8f8;line-height: 27px;">
+                                        <div class="col-xs-4">餘額: <span class="text-info">{{ history_item.point }}</span></div>
+                                        <div class="col-xs-4">儲值: <span class="text-success">{{ history_item.increase_point }}</span></div>
+                                        <div class="col-xs-4">使用: <span class="text-danger">{{ history_item.decrease_point }}</span></div>
                                     </div>
+
+                                    <p class="m-b-xs"><br><strong>{{ history_item.remark }}</strong></p>
+                                    {% if history_item.order_no and history_item.order_amount %}
+                                    <p>
+                                        訂單編號: {{ history_item.order_no }}<br>
+                                        訂單金額: {{ history_item.order_amount }}<br>
+                                    </p>
+                                    {% endif %}
                                 </div>
                             </div>
-                            {% endfor %}
                         </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-sm-4">
-                <div class="ibox float-e-margins">
-                    <div class="ibox-title">
-                        <h5>儲值、扣款</h5>
-                    </div>
-                    <div class="ibox-content">
-                        <form method="POST" action="{{ uri_action_link('send_point') }}"
-                              data-return-encoding="{{ scaffolding.form_return_encoding }}"
-                              enctype="{{ scaffolding.form_encoding }}" accept-charset="UTF-8"
-                              role="form" id="send-shop-point">
-                            <input type="hidden" name="key" value="{{ print_key(item) }}" />
-                            <select name="action" class="form-control">
-                                <option value="increase_point">儲值</option>
-                                <option value="decrease_point">扣款</option>
-                            </select>
-                            <h6>金額</h6>
-                            <input type="number" name="point" class="form-control" min="0" max="99999999" />
-                            <h6>說明</h6>
-                            <textarea class="form-control" name="remark"></textarea><br>
-                            <a id="btn-send-shop-point" class="btn brand-bg-color pull-right" style="color: #fff;">送出</a>
-                            <br><br>
-                        </form>
+                        {% endfor %}
                     </div>
                 </div>
             </div>
         </div>
+        <div class="col-sm-4">
+            <div class="ibox float-e-margins">
+                <div class="ibox-title">
+                    <h5>儲值、扣款</h5>
+                </div>
+                <div class="ibox-content">
+                    <form method="POST" action="{{ uri_action_link('send_point') }}"
+                          data-return-encoding="{{ scaffolding.form_return_encoding }}"
+                          enctype="{{ scaffolding.form_encoding }}" accept-charset="UTF-8"
+                          role="form" id="send-shop-point">
+                        <input type="hidden" name="key" value="{{ print_key(item) }}" />
+                        <select name="action" class="form-control">
+                            <option value="increase_point">儲值</option>
+                            <option value="decrease_point">扣款</option>
+                        </select>
+                        <h6>金額</h6>
+                        <input type="number" name="point" class="form-control" min="0" max="99999999" />
+                        <h6>說明</h6>
+                        <textarea class="form-control" name="remark"></textarea><br>
+                        <a id="btn-send-shop-point" class="btn brand-bg-color pull-right" style="color: #fff;">送出</a>
+                        <br><br>
+                    </form>
+                </div>
+            </div>
+        </div>
     </div>
-
 {% endblock %}
 
-{% block layout_scripts %}
+{% block page_scripts %}
 <script type="text/javascript">
     (function(page){
         $("#btn-send-shop-point").click(function(){

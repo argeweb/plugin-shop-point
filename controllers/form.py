@@ -7,7 +7,7 @@
 # Date: 2017/2/24.
 from datetime import datetime
 from argeweb import auth, add_authorizations
-from argeweb import Controller, scaffold, route_menu, route_with, route, settings
+from argeweb import Controller, scaffold, route_with, route
 from argeweb.components.pagination import Pagination
 from argeweb.components.csrf import CSRF, csrf_protect
 from argeweb.components.search import Search
@@ -21,8 +21,8 @@ class Form(Controller):
         Model = UserShopPointModel
 
     class Scaffold:
-        display_in_form = ('name', 'account', 'is_enable', 'sort', 'created', 'modified')
-        display_in_list = ('name', 'account')
+        display_in_form = ['name', 'account', 'is_enable', 'sort', 'created', 'modified']
+        display_in_list = ['name', 'account']
 
     @route
     @add_authorizations(auth.check_user)

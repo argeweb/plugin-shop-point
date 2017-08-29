@@ -9,9 +9,12 @@
 from argeweb import ViewDatastore
 from .models.user_shop_point_model import UserShopPointModel
 from .models.user_shop_point_history_model import UserShopPointHistoryModel
+from .models.user_shop_point_product_model import UserShopPointProductModel
 
 ViewDatastore.register('shop_point', UserShopPointModel.get_or_create)
 ViewDatastore.register('shop_point_history', UserShopPointHistoryModel.all_enable)
+ViewDatastore.register('shop_point_product', UserShopPointProductModel.all_enable)
+
 
 plugins_helper = {
     'title': u'使用者的購物金',
@@ -27,7 +30,17 @@ plugins_helper = {
                 {'action': 'plugins_check', 'name': u'啟用停用模組'},
             ]
         },
-        'user_shop_point_config': {
+        'user_shop_point_product': {
+            'group': u'購物金產品',
+            'actions': [
+                {'action': 'add', 'name': u'新增購物金產品'},
+                {'action': 'list', 'name': u'購物金產品管理'},
+                {'action': 'edit', 'name': u'編輯購物金產品'},
+                {'action': 'view', 'name': u'檢視購物金產品'},
+                {'action': 'delete', 'name': u'刪除購物金產品'},
+            ]
+        },
+        'config': {
             'group': u'購物金設定',
             'actions': [
                 {'action': 'config', 'name': u'購物金設定'},

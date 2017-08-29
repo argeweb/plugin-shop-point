@@ -38,6 +38,7 @@ class UserShopPointModel(BasicModel):
 
     @classmethod
     def after_get(cls, key, item):
+        super(UserShopPointModel, cls).after_get(key, item)
         item._user = item.user.get()
         item.user_name_proxy = item._user.name
         item.user_email_proxy = item._user.email

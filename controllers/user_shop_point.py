@@ -6,7 +6,7 @@
 # Web: http://www.yooliang.com/
 # Date: 2017/2/24.
 
-from argeweb import Controller, scaffold, route_menu, route_with, route, settings
+from argeweb import Controller, scaffold, route_menu, route
 from argeweb import auth, add_authorizations
 from argeweb.components.pagination import Pagination
 from argeweb.components.csrf import CSRF, csrf_protect
@@ -19,11 +19,32 @@ class UserShopPoint(Controller):
         components = (scaffold.Scaffolding, Pagination, Search, CSRF)
 
     class Scaffold:
-        display_in_form = ('account', 'created', 'modified')
-        hidden_in_form = ('name', 'is_enable')
-        display_in_list = ('user_name_proxy', 'user_email_proxy', 'point', 'used_point', 'modified')
+        display_in_form = ['account', 'created', 'modified']
+        hidden_in_form = ['name', 'is_enable']
+        display_in_list = ['user_name_proxy', 'user_email_proxy', 'point', 'used_point', 'modified']
 
-    @route_menu(list_name=u'backend', text=u'會員點數', sort=9803, icon='users', group=u'帳號管理')
+    @route
+    @route_menu(list_name=u'system', group=u'購物金', text=u'串接測試', sort=811, target='_blank')
+    def admin_test(self):
+        from plugins.payment_middle_layer.models.payment_test_order_model import PaymentTestOrderModel
+        from plugins.payment_middle_layer.models.payment_type_model import PaymentTypeModel
+        payment_type = PaymentTypeModel.get_by_name('user_shop_point')
+        order = PaymentTestOrderModel.gen_test_order('user_shop_point', payment_type)
+        payment_record = self.fire(
+            event_name='create_payment',
+            title=u'測試訂單 %s' % order.order_no,
+            detail=u'支付訂單 %s 使用 %s ' % (order.order_no, payment_type.title),
+            amount=order.need_pay_amount,
+            source=order,
+            source_params={'order_no': order.order_no},
+            source_callback_uri='admin:payment_middle_layer:payment_middle_layer:after_pay_for_test',
+            payment_type=payment_type,
+            user=self.application_user,
+            status='pending_payment',
+        )
+        return self.redirect(payment_record.pay_url)
+
+    @route_menu(list_name=u'backend', group=u'帳號管理', text=u'會員購物金', sort=9803, icon='users')
     def admin_list(self):
         scaffold.list(self)
 
@@ -61,7 +82,9 @@ class UserShopPoint(Controller):
             return
         point_record = self.meta.Model.get_or_create(self.application_user)
         if point_record.point < payment_record.amount:
-            self.context['message'] = u'點數餘額不足，請先儲值'
+            self.context['message'] = u'點數餘額不足'
+            payment_record.set_state('not_enough')
+            payment_record.put()
             return
         point_record.decrease_point(payment_record.amount, payment_record.title, payment_record.order_no, payment_record.amount)
         point_record.put()
@@ -69,7 +92,7 @@ class UserShopPoint(Controller):
         payment_record.put()
         self.context['data'] = {'result': 'success', 'point_record': point_record}
         self.context['message'] = u'成功使用點數進行支付'
-        return self.redirect(payment_record.gen_result_url(self))
+        return self.redirect(payment_record.return_rul)
 
     @route
     def taskqueue_after_install(self):

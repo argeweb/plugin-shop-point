@@ -1,0 +1,11 @@
+- kind: UserShopPointHistoryModel
+  properties:
+  - name: shop_point_target
+  - name: sort
+    direction: desc
+
+- kind: UserShopPointProductModel
+  properties:
+  - name: is_enable
+  - name: sort
+    direction: desc
