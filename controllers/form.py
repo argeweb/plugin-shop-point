@@ -16,7 +16,6 @@ from ..models.user_shop_point_model import UserShopPointModel
 
 class Form(Controller):
     class Meta:
-        components = (scaffold.Scaffolding, Pagination, Search, CSRF)
         default_view = 'json'
         Model = UserShopPointModel
 
@@ -25,10 +24,9 @@ class Form(Controller):
         display_in_list = ['name', 'account']
 
     @route
-    @add_authorizations(auth.check_user)
     @route_with(name='form:user:use_shop_point')
     def use_shop_point(self):
-        u = self.params.get_float('use')
+        u = self.params.get_float('use') // 1.0
         u2 = 0.0
         try:
             from plugins.currency.models.currency_model import CurrencyModel
@@ -41,7 +39,7 @@ class Form(Controller):
             self.session['shop_point_use'] = u
             self.session['shop_point_use_in_currency'] = u2
             self.context['data'] = {'result': 'success', 'shop_point_use': u, 'shop_point_use_in_currency': u2}
-            self.context['message'] = u'將使用購物金 %s 元' % u
+            self.context['message'] = u'將使用購物金 %s 元' % int(u)
             return
         if u > m.point:
             self.context['message'] = u'購物金不足'

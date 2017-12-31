@@ -17,7 +17,7 @@ class UserShopPointModel(BasicModel):
             'modified': u'最後變動時間',
         }
     name = Fields.StringProperty(verbose_name=u'識別名稱')
-    user = Fields.KeyProperty(verbose_name=u'使用者', kind=ApplicationUserModel)
+    user = Fields.ApplicationUserProperty(verbose_name=u'使用者')
     user_name_proxy = Fields.StringProperty(verbose_name=u'使用者名稱')
     user_email_proxy = Fields.StringProperty(verbose_name=u'E-Mail')
     point = Fields.FloatProperty(verbose_name=u'現餘點數', default=0.0)
@@ -40,8 +40,11 @@ class UserShopPointModel(BasicModel):
     def after_get(cls, key, item):
         super(UserShopPointModel, cls).after_get(key, item)
         item._user = item.user.get()
-        item.user_name_proxy = item._user.name
-        item.user_email_proxy = item._user.email
+        if item._user:
+            item.user_name_proxy = item._user.name
+            item.user_email_proxy = item._user.email
+        else:
+            item.user_name_proxy = u'該帳號已被刪除'
 
     def increase_point(self, point, remark=u'', order_no=u'', order_amount=None):
         from user_shop_point_history_model import UserShopPointHistoryModel
@@ -76,5 +79,13 @@ class UserShopPointModel(BasicModel):
         self.point -= point
         self.used_point += point
 
-    def after_put(self, key):
-        pass
+    def get_max_usable_point(self, total):
+        from ..models.config_model import ConfigModel
+        config = ConfigModel.get_config()
+        if total > config.min_amount:
+            n = total * (config.max_use_point_for_order / 100.0) * (config.discount_ratio / 100.0) // 1.0
+            if n > self.point:
+                return self.point
+            return n
+        else:
+            return 0.0

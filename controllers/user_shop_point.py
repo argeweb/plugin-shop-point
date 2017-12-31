@@ -15,9 +15,6 @@ from ..models.user_shop_point_history_model import UserShopPointHistoryModel as 
 
 
 class UserShopPoint(Controller):
-    class Meta:
-        components = (scaffold.Scaffolding, Pagination, Search, CSRF)
-
     class Scaffold:
         display_in_form = ['account', 'created', 'modified']
         hidden_in_form = ['name', 'is_enable']
@@ -30,7 +27,7 @@ class UserShopPoint(Controller):
         from plugins.payment_middle_layer.models.payment_type_model import PaymentTypeModel
         payment_type = PaymentTypeModel.get_by_name('user_shop_point')
         order = PaymentTestOrderModel.gen_test_order('user_shop_point', payment_type)
-        payment_record = self.fire(
+        self.fire(
             event_name='create_payment',
             title=u'測試訂單 %s' % order.order_no,
             detail=u'支付訂單 %s 使用 %s ' % (order.order_no, payment_type.title),
@@ -42,7 +39,7 @@ class UserShopPoint(Controller):
             user=self.application_user,
             status='pending_payment',
         )
-        return self.redirect(payment_record.pay_url)
+        return self.redirect(self.payment_record.pay_url)
 
     @route_menu(list_name=u'backend', group=u'帳號管理', text=u'會員購物金', sort=9803, icon='users')
     def admin_list(self):
@@ -70,7 +67,6 @@ class UserShopPoint(Controller):
         })
 
     @route
-    @add_authorizations(auth.check_user)
     def pay_with_point(self):
         payment_record = self.params.get_ndb_record('payment_record')
         self.context['data'] = {'result': 'failure'}
@@ -95,15 +91,43 @@ class UserShopPoint(Controller):
         return self.redirect(payment_record.return_rul)
 
     @route
-    def taskqueue_after_install(self):
+    def after_pay_buy_point(self):
+        payment_record = self.params.get_ndb_record('payment_record')
+        payment_status = payment_record.payment_status.get()
+        if payment_status.name == 'already_paid_and_need_process':
+            payment_record.set_state('already_paid')
+            payment_record.put()
+        data = payment_record.get_source_params()
+        point_record = self.meta.Model.get_or_create(payment_record.user_object.get())
+        point_record.increase_point(data['point'], payment_record.title, payment_record.order_no, payment_record.amount)
+        point_record.put()
         try:
-            from plugins.payment_middle_layer.models.payment_type_model import PaymentTypeModel
-            PaymentTypeModel.get_or_create(
-                name='user_shop_point',
-                title=u'點數支付',
-                pay_uri='user_shop_point:user_shop_point:pay_with_point'
-            )
-            return 'done'
-        except ImportError:
-            self.logging.error(u'需要 "付款中間層"')
-            return 'ImportError'
+            return_rul = self.uri(data['callback_uri'], payment_record=self.util.encode_key(payment_record))
+        except:
+            try:
+                return_rul = '%s?payment_record=%s' % (data['callback_uri'], self.util.encode_key(payment_record))
+            except:
+                return_rul = ''
+        if return_rul != '':
+            return self.redirect(return_rul)
+        return self.json({'message': 'done'})
+
+    @route
+    def taskqueue_after_uninstall(self):
+        self.fire(
+            event_name='update_payment_type',
+            name='user_shop_point',
+            is_enable=False,
+        )
+        return 'done'
+
+    @route
+    def taskqueue_after_install(self):
+        self.fire(
+            event_name='update_payment_type',
+            name='user_shop_point',
+            title=u'購物金支付',
+            is_enable=True,
+            pay_uri='user_shop_point:user_shop_point:pay_with_point'
+        )
+        return 'done'

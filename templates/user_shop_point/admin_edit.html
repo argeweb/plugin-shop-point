@@ -8,7 +8,6 @@
         </div>
         <h2>購物金</h2>
         <span>{{ item.user_name_proxy }}，已使用 {{ item.used_point }} 元，尚有 {{ item.point }} 元。</span>
-        {% if last_record_date %}<span class="text-muted small pull-right visible-sm visible-md visible-lg">最後更新：<i class="icon">access_time</i> {{ print_value(last_record_date) }}</span>{% endif %}
     </div>
 </div>
 {% endblock %}

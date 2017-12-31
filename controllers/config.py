@@ -16,14 +16,22 @@ class Config(Controller):
 
     @staticmethod
     def change_config(controller, item, *args, **kwargs):
-        if item.display_brand_field is True:
-            controller.fire('enable_role_action', action_uri='plugins.product.controllers.product_brand.list')
+        if item.can_buy is True:
+            controller.fire(
+                event_name='update_payment_type',
+                name='user_shop_point',
+                is_enable=True,
+            )
         else:
-            controller.fire('disable_role_action', action_uri='plugins.product.controllers.product_brand.list')
+            controller.fire(
+                event_name='update_payment_type',
+                name='user_shop_point',
+                is_enable=False,
+            )
 
     @route
     @route_menu(list_name=u'system', group=u'購物金', text=u'購物金設定', sort=809)
     def admin_config(self):
-        config_record = self.meta.Model.get_or_create_by_name('user_shop_point_config')
+        config_record = self.meta.Model.get_config()
         self.events.scaffold_after_save += self.change_config
         return scaffold.edit(self, config_record.key)
